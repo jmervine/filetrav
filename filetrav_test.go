@@ -51,6 +51,16 @@ func TestGoTo(T *testing.T) {
 }
 
 func TestMove(T *testing.T) {
+    t := GoT.Go(T)
+
+    traveler := stub(2)
+    traveler.Move(1)
+    t.AssertEqual(traveler.Position(), 3)
+
+    traveler = stub(1)
+    traveler.Move(-1)
+    t.AssertEqual(traveler.Position(), 0)
+
 }
 
 func TestIsTop(T *testing.T) {
@@ -188,13 +198,50 @@ func Example() {
     }
 
     for ; traveler.HasNext(); traveler.Next() {
-        fmt.Printf("%d: %s\n", traveler.Position(), traveler.Current())
+        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
     }
 
     // Output:
     //
-    // 0: foo
-    // 1: bar
-    // 2: bah
-    // 3: bin
+    // 0: "foo"
+    // 1: "bar"
+    // 2: "bah"
+    // 3: "bin"
+}
+
+func ExampleTop() {
+    traveler, _ := ReadFileTraveler("_support/test.txt")
+
+    traveler.Top()
+    if traveler.IsTop() {
+        fmt.Println("top")
+    }
+
+    // Output: top
+}
+
+func ExampleMove() {
+    traveler, _ := ReadFileTraveler("_support/test.txt")
+
+    if traveler.Move(1) {
+        fmt.Printf("%q\n", traveler.Current())
+    }
+
+    if traveler.Move(-1) {
+        fmt.Printf("%q\n", traveler.Current())
+    }
+
+    if traveler.Bottom() {
+        fmt.Printf("%q\n", traveler.Current())
+    }
+
+    if traveler.Move(-1) {
+        fmt.Printf("%q\n", traveler.Current())
+    }
+
+    // Output:
+    // "bar"
+    // "foo"
+    // ""
+    // "bin"
 }

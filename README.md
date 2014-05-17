@@ -22,15 +22,15 @@ Warning: This is not fully tested as of yet.
 	}
 
 	for ; traveler.HasNext(); traveler.Next() {
-	    fmt.Printf("%d: %s\n", traveler.Position(), traveler.Current())
+	    fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
 	}
 
 	// Output:
 	//
-	// 0: foo
-	// 1: bar
-	// 2: bah
-	// 3: bin
+	// 0: "foo"
+	// 1: "bar"
+	// 2: "bah"
+	// 3: "bin"
 
 ### Types
 

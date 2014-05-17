@@ -25,7 +25,7 @@ type FileTraveler struct {
 func NewFileTraveler(data []byte) (traveler FileTraveler, err error) {
     traveler.lines = bytes.Split(data, []byte("\n"))
     traveler.current = traveler.lines[0]
-    traveler.bottom = len(traveler.lines) - 1
+    traveler.bottom = (len(traveler.lines) - 1)
     return
 }
 
@@ -47,7 +47,7 @@ func (traveler *FileTraveler) Position() (position int) {
 
 // GoTo 'n' line in file.
 func (traveler *FileTraveler) GoTo(n int) (moved bool) {
-    if n == traveler.position || n < 0 || n >= len(traveler.lines) {
+    if n == traveler.position || n < 0 || n > traveler.bottom {
         return false
     }
 
@@ -58,7 +58,7 @@ func (traveler *FileTraveler) GoTo(n int) (moved bool) {
 
 // Move +/- 'n' lines in file.
 func (traveler *FileTraveler) Move(n int) (moved bool) {
-    return traveler.GoTo(traveler.Position() + n)
+    return traveler.GoTo(traveler.position + n)
 }
 
 // Current returns the current line
