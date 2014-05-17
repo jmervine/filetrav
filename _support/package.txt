@@ -1,0 +1,113 @@
+{{with .PAst}}{{node $ .}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .PDoc}}{{if not $.IsMain}}
+# filetrav
+
+[![GoDoc](https://godoc.org/github.com/jmervine/filetrav?status.png)](https://godoc.org/github.com/jmervine/filetrav) [![Build Status](https://travis-ci.org/jmervine/filetrav.svg?branch=master)](https://travis-ci.org/jmervine/filetrav)
+
+## [Documentation](https://godoc.org/github.com/jmervine/filetrav)
+
+```go
+import "github.com/jmervine/filetrav"
+```{{else}}
+{{end}}
+
+{{comment_text .Doc "" "    "}}
+{{example_text $ "" "##### "}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Consts}}
+### Constants
+
+{{range .}}```go
+{{node $ .Decl}}
+```
+
+{{comment_text .Doc "" "    "}}
+{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Vars}}
+### Variables
+
+{{range .}}```go
+{{node $ .Decl}}
+```
+
+{{comment_text .Doc "" "    "}}
+{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Types}}
+### Types
+
+{{range .}}#### {{.Name}}
+
+```go
+{{$tname := .Name}}{{node $ .Decl}}
+```
+{{range .Consts}}```go
+{{node $ .Decl}}
+```
+{{comment_text .Doc "" "    "}}
+{{end}}
+{{range .Vars}}{{node $ .Decl}}
+{{comment_text .Doc "" "    "}}
+{{end}}
+{{example_text $ .Name "##### "}}
+
+### Functions
+{{range .Funcs}}#### {{.Name}}
+
+```go
+{{node $ .Decl}}
+```
+{{comment_text .Doc "" "    "}}
+{{example_text $ .Name  "##### "}}
+{{end}}{{range .Methods}}{{/* methods */}}#### {{.Name}}
+
+```go
+{{node $ .Decl}}
+```
+{{comment_text .Doc "" "    "}}
+{{$name := printf "%s_%s" $tname .Name}}
+{{if example_text $ $name ""}}
+{{example_text $ $name "##### "}}
+{{end}}
+{{end}}{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Funcs}}
+{{range .}}#### {{.Name}}
+
+```go
+{{node $ .Decl}}
+```
+{{comment_text .Doc "" "    "}}
+{{example_text $ .Name "##### "}}
+{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with $.Notes}}
+{{range $marker, $content := .}}
+{{noteTitle $marker}}s
+
+{{range $content}}{{comment_text . "" "    "}}
+{{end}}{{end}}{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Dirs}}
+## Subdirectories
+{{if $.DirFlat}}{{range .List}}{{if .HasPkg}}
+	{{.Path}}{{end}}{{end}}
+{{else}}{{range .List}}
+	{{repeat `. ` .Depth}}{{.Name}}{{end}}
+{{end}}{{end}}
