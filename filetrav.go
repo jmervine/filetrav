@@ -2,6 +2,8 @@
 Package filetrav: Travel around files easily.
 
 This may exist elsewhere, there's probably an easier way to do this. But it was a fun bit of code to write and I find it useful.
+
+Warning: This is not fully tested as of yet.
 */
 package filetrav
 
