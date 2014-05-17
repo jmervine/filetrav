@@ -15,6 +15,22 @@ a fun bit of code to write and I find it useful.
 
 Warning: This is not fully tested as of yet.
 
+##### Example:
+	traveler, err := ReadFileTraveler("_support/test.txt")
+	if err != nil {
+	    panic(err)
+	}
+
+	for ; traveler.HasNext(); traveler.Next() {
+	    fmt.Printf("%d: %s\n", traveler.Position(), traveler.Current())
+	}
+
+	// Output:
+	//
+	// 0: foo
+	// 1: bar
+	// 2: bah
+	// 3: bin
 
 ### Types
 

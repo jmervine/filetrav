@@ -1,6 +1,7 @@
 package filetrav
 
 import (
+    "fmt"
     "github.com/jmervine/GoT"
     "testing"
 )
@@ -178,4 +179,22 @@ func TestGetPrev(T *testing.T) {
 
     traveler = stub(0)
     t.AssertNil(traveler.GetPrev())
+}
+
+func Example() {
+    traveler, err := ReadFileTraveler("_support/test.txt")
+    if err != nil {
+        panic(err)
+    }
+
+    for ; traveler.HasNext(); traveler.Next() {
+        fmt.Printf("%d: %s\n", traveler.Position(), traveler.Current())
+    }
+
+    // Output:
+    //
+    // 0: foo
+    // 1: bar
+    // 2: bah
+    // 3: bin
 }
