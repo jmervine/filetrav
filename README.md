@@ -169,6 +169,32 @@ Move +/- 'n' lines in file.
 
 
 
+##### Example:
+	traveler, _ := ReadFileTraveler("_support/test.txt")
+
+	if traveler.Move(1) {
+	    fmt.Printf("%q\n", traveler.Current())
+	}
+
+	if traveler.Move(-1) {
+	    fmt.Printf("%q\n", traveler.Current())
+	}
+
+	if traveler.Bottom() {
+	    fmt.Printf("%q\n", traveler.Current())
+	}
+
+	if traveler.Move(-1) {
+	    fmt.Printf("%q\n", traveler.Current())
+	}
+
+	// Output:
+	// "bar"
+	// "foo"
+	// ""
+	// "bin"
+
+
 #### Next
 
 ```go
@@ -203,6 +229,17 @@ func (traveler *FileTraveler) Top() (moved bool)
 ```
 Top makes the top line in the file the current line.
 
+
+
+##### Example:
+	traveler, _ := ReadFileTraveler("_support/test.txt")
+
+	traveler.Top()
+	if traveler.IsTop() {
+	    fmt.Println("top")
+	}
+
+	// Output: top
 
 
 

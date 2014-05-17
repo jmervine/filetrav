@@ -209,7 +209,7 @@ func Example() {
     // 3: "bin"
 }
 
-func ExampleTop() {
+func ExampleFileTraveler_Top() {
     traveler, _ := ReadFileTraveler("_support/test.txt")
 
     traveler.Top()
@@ -220,7 +220,7 @@ func ExampleTop() {
     // Output: top
 }
 
-func ExampleMove() {
+func ExampleFileTraveler_Move() {
     traveler, _ := ReadFileTraveler("_support/test.txt")
 
     if traveler.Move(1) {
