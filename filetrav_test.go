@@ -3,6 +3,7 @@ package filetrav
 import (
     "fmt"
     "github.com/jmervine/GoT"
+    "regexp"
     "testing"
 )
 
@@ -191,6 +192,46 @@ func TestGetPrev(T *testing.T) {
     t.AssertNil(traveler.GetPrev())
 }
 
+func TestLength(T *testing.T) {
+    t := GoT.Go(T)
+
+    traveler := stub(3)
+    t.AssertEqual(traveler.Length(), 4)
+}
+
+func TestCurrentLength(T *testing.T) {
+    t := GoT.Go(T)
+
+    traveler := stub(3)
+    t.AssertEqual(traveler.CurrentLength(), 3)
+}
+
+func TestFind(T *testing.T) {
+    t := GoT.Go(T)
+
+    traveler := stub(3)
+
+    rx := regexp.MustCompile("^foo$")
+    t.AssertLength(traveler.Find(rx), 1)
+    t.AssertDeepEqual(traveler.Find(rx), []int{0})
+
+    rx = regexp.MustCompile("^b.+$")
+    t.AssertLength(traveler.Find(rx), 3)
+    t.AssertDeepEqual(traveler.Find(rx), []int{1, 2, 3})
+}
+
+func TestFindString(T *testing.T) {
+    t := GoT.Go(T)
+
+    traveler := stub(3)
+
+    t.AssertLength(traveler.FindString("^foo$"), 1)
+    t.AssertDeepEqual(traveler.FindString("^foo$"), []int{0})
+
+    t.AssertLength(traveler.FindString("^b.+$"), 3)
+    t.AssertDeepEqual(traveler.FindString("^b.+$"), []int{1, 2, 3})
+}
+
 func Example() {
     traveler, err := ReadFileTraveler("_support/test.txt")
     if err != nil {
@@ -244,4 +285,23 @@ func ExampleFileTraveler_Move() {
     // "foo"
     // ""
     // "bin"
+}
+
+func ExampleFileTraveler_FindString() {
+    traveler, err := ReadFileTraveler("_support/test.txt")
+    if err != nil {
+        panic(err)
+    }
+
+    for _, i := range traveler.FindString("^b.+$") {
+        if traveler.GoTo(i) {
+            fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+        }
+    }
+
+    // Output:
+    //
+    // 1: "bar"
+    // 2: "bah"
+    // 3: "bin"
 }

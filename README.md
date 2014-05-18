@@ -81,6 +81,54 @@ Current returns the current line
 
 
 
+#### CurrentLength
+
+```go
+func (traveler *FileTraveler) CurrentLength() (length int)
+```
+CurrentLength returns the number of bytes in the current line.
+
+
+
+#### Find
+
+```go
+func (traveler *FileTraveler) Find(rx *regexp.Regexp) (matches []int)
+```
+Find takes a compiled regexp and starting at the top of the file returns the
+line number of all lines that match.
+
+
+
+#### FindString
+
+```go
+func (traveler *FileTraveler) FindString(pattern string) (matches []int)
+```
+FindString takes a regexp as a string and starting at the top of the file
+returns the line number of all lines that match.
+
+
+
+##### Example:
+	traveler, err := ReadFileTraveler("_support/test.txt")
+	if err != nil {
+	    panic(err)
+	}
+
+	for _, i := range traveler.FindString("^b.+$") {
+	    if traveler.GoTo(i) {
+	        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+	    }
+	}
+
+	// Output:
+	//
+	// 1: "bar"
+	// 2: "bah"
+	// 3: "bin"
+
+
 #### GetBottom
 
 ```go
@@ -133,6 +181,7 @@ GoTo 'n' line in file.
 ```go
 func (traveler *FileTraveler) HasNext() (hasNext bool)
 ```
+HasNext checks to see if there is a line after the current line.
 
 
 
@@ -141,6 +190,7 @@ func (traveler *FileTraveler) HasNext() (hasNext bool)
 ```go
 func (traveler *FileTraveler) HasPrev() (hasPrev bool)
 ```
+HasPrev checks to see if there is a line before the current line.
 
 
 
@@ -149,6 +199,7 @@ func (traveler *FileTraveler) HasPrev() (hasPrev bool)
 ```go
 func (traveler *FileTraveler) IsBottom() (isBottom bool)
 ```
+IsBottom checks to see if this current line is the last line.
 
 
 
@@ -157,6 +208,16 @@ func (traveler *FileTraveler) IsBottom() (isBottom bool)
 ```go
 func (traveler *FileTraveler) IsTop() (isTop bool)
 ```
+IsTop checks to see if this current line is the first line.
+
+
+
+#### Length
+
+```go
+func (traveler *FileTraveler) Length() (length int)
+```
+Length returns the number of lines in the file.
 
 
 

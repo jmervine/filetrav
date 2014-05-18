@@ -10,6 +10,7 @@ package filetrav
 import (
     "bytes"
     "io/ioutil"
+    "regexp"
 )
 
 // FileTraveler is a wrapper for the file being worked with.
@@ -25,7 +26,7 @@ type FileTraveler struct {
 func NewFileTraveler(data []byte) (traveler FileTraveler, err error) {
     traveler.lines = bytes.Split(data, []byte("\n"))
     traveler.current = traveler.lines[0]
-    traveler.bottom = (len(traveler.lines) - 1)
+    traveler.bottom = (traveler.Length() - 1)
     return
 }
 
@@ -66,6 +67,7 @@ func (traveler *FileTraveler) Current() (current []byte) {
     return traveler.current
 }
 
+// IsTop checks to see if this current line is the first line.
 func (traveler *FileTraveler) IsTop() (isTop bool) {
     return traveler.position == 0
 }
@@ -82,6 +84,7 @@ func (traveler *FileTraveler) GetTop() (top []byte) {
     return traveler.Current()
 }
 
+// IsBottom checks to see if this current line is the last line.
 func (traveler *FileTraveler) IsBottom() (isBottom bool) {
     return traveler.position == traveler.bottom
 }
@@ -98,8 +101,9 @@ func (traveler *FileTraveler) GetBottom() (bottom []byte) {
     return traveler.Current()
 }
 
+// HasNext checks to see if there is a line after the current line.
 func (traveler *FileTraveler) HasNext() (hasNext bool) {
-    return traveler.position+1 < len(traveler.lines)
+    return traveler.position+1 < traveler.Length()
 }
 
 // Next makes the next line in file the current line.
@@ -116,6 +120,7 @@ func (traveler *FileTraveler) GetNext() (next []byte) {
     return nil
 }
 
+// HasPrev checks to see if there is a line before the current line.
 func (traveler *FileTraveler) HasPrev() (hasPrev bool) {
     return traveler.position-1 > 0
 }
@@ -132,4 +137,32 @@ func (traveler *FileTraveler) GetPrev() (prev []byte) {
         return traveler.Current()
     }
     return nil
+}
+
+// Length returns the number of lines in the file.
+func (traveler *FileTraveler) Length() (length int) {
+    return len(traveler.lines)
+}
+
+// CurrentLength returns the number of bytes in the current line.
+func (traveler *FileTraveler) CurrentLength() (length int) {
+    return len(traveler.Current())
+}
+
+// Find takes a compiled regexp and starting at the top of the file
+// returns the line number of all lines that match.
+func (traveler *FileTraveler) Find(rx *regexp.Regexp) (matches []int) {
+    for i := 0; i < traveler.Length(); i++ {
+        if rx.Match(traveler.lines[i]) {
+            matches = append(matches, i)
+        }
+    }
+    return
+}
+
+// FindString takes a regexp as a string and starting at the top of the file
+// returns the line number of all lines that match.
+func (traveler *FileTraveler) FindString(pattern string) (matches []int) {
+    rx := regexp.MustCompile(pattern)
+    return traveler.Find(rx)
 }
