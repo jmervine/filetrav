@@ -16,21 +16,55 @@ a fun bit of code to write and I find it useful.
 Warning: This is not fully tested as of yet.
 
 ##### Example:
-	traveler, err := ReadFileTraveler("_support/test.txt")
-	if err != nil {
-	    panic(err)
-	}
+	if traveler, err := ReadFileTraveler("_support/test.txt"); err == nil {
+	    // Overly complex for example purposes.
 
-	for ; traveler.HasNext(); traveler.Next() {
+	    if traveler.IsTop() {
+	        fmt.Println("starting at the top")
+	    }
+
 	    fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+
+	    if traveler.Next() {
+	        fmt.Println("moving to the next line")
+	        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+	    }
+
+	    if traveler.Move(1) {
+	        fmt.Println("moving down a line")
+	        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+	    }
+
+	    if traveler.Move(-1) {
+	        fmt.Println("moving back up a line")
+	        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+	    }
+
+	    if traveler.Bottom() {
+	        fmt.Println("moving to the bottom line")
+	        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+	    }
+
+	    if traveler.IsBottom() {
+	        fmt.Println("finishing at the bottom")
+	    }
+	}
+	for traveler.Top(); traveler.HasNext(); traveler.Next() {
 	}
 
 	// Output:
 	//
+	// starting at the top
 	// 0: "foo"
+	// moving to the next line
 	// 1: "bar"
+	// moving down a line
 	// 2: "bah"
-	// 3: "bin"
+	// moving back up a line
+	// 1: "bar"
+	// moving to the bottom line
+	// 4: ""
+	// finishing at the bottom
 
 ### Types
 
@@ -121,6 +155,62 @@ returns the line number of all lines that match.
 	        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
 	    }
 	}
+
+	// Output:
+	//
+	// 1: "bar"
+	// 2: "bah"
+	// 3: "bin"
+
+
+#### ForEach
+
+```go
+func (traveler *FileTraveler) ForEach(act func(position int, line []byte))
+```
+ForEach iterates over the file from top to bottom, calling the passed method on
+each line. It leaves the current line unchanged when complete.
+
+
+
+##### Example:
+	traveler, err := ReadFileTraveler("_support/test.txt")
+	if err != nil {
+	    panic(err)
+	}
+
+	traveler.ForEach(func(pos int, line []byte) {
+	    fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+	})
+
+	// Output:
+	//
+	// 0: "foo"
+	// 1: "bar"
+	// 2: "bah"
+	// 3: "bin"
+	// 4: ""
+
+
+#### ForRange
+
+```go
+func (traveler *FileTraveler) ForRange(start int, end int, act func(position int, line []byte))
+```
+ForRange iterates over the file from 'start' to 'end', calling the passed method
+on each line. It leaves the current line unchanged when complete.
+
+
+
+##### Example:
+	traveler, err := ReadFileTraveler("_support/test.txt")
+	if err != nil {
+	    panic(err)
+	}
+
+	traveler.ForRange(1, 3, func(pos int, line []byte) {
+	    fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+	})
 
 	// Output:
 	//

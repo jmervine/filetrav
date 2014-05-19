@@ -2,10 +2,16 @@ package filetrav
 
 import (
     "fmt"
-    "github.com/jmervine/GoT"
+    . "github.com/jmervine/GoT"
     "regexp"
     "testing"
 )
+
+var traveler, _ = ReadFileTraveler("_support/test.txt")
+
+func reload() {
+    traveler.GoTo(0)
+}
 
 func stub(start int) FileTraveler {
     l := [][]byte{
@@ -13,6 +19,7 @@ func stub(start int) FileTraveler {
         []byte("bar"),
         []byte("bah"),
         []byte("bin"),
+        []byte(""),
     }
 
     return FileTraveler{
@@ -24,230 +31,266 @@ func stub(start int) FileTraveler {
 }
 
 func TestPosition(T *testing.T) {
-    t := GoT.Go(T)
-    traveler := stub(1)
-
-    t.AssertEqual(traveler.Position(), 1)
+    Go(T).AssertEqual(traveler.Position(), 0)
 }
 
 func TestCurrent(T *testing.T) {
-    t := GoT.Go(T)
-    traveler := stub(1)
-
-    t.AssertDeepEqual(traveler.Current(), []byte("bar"))
+    Go(T).AssertDeepEqual(traveler.Current(), []byte("foo"))
 }
 
 func TestGoTo(T *testing.T) {
-    t := GoT.Go(T)
-    traveler := stub(1)
+    Go(T).Assert(traveler.GoTo(1))
+    Go(T).AssertEqual(traveler.Position(), 1)
 
-    t.Assert(traveler.GoTo(0))
-    t.AssertEqual(traveler.Position(), 0)
+    Go(T).Assert(traveler.GoTo(0))
+    Go(T).AssertEqual(traveler.Position(), 0)
 
-    t.Assert(traveler.GoTo(3))
-    t.AssertEqual(traveler.Position(), 3)
+    Go(T).Assert(traveler.GoTo(3))
+    Go(T).AssertEqual(traveler.Position(), 3)
 
-    t.Refute(traveler.GoTo(-1))
-    t.AssertEqual(traveler.Position(), 3)
+    Go(T).Refute(traveler.GoTo(-1))
+    Go(T).AssertEqual(traveler.Position(), 3)
 }
 
 func TestMove(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(2)
     traveler.Move(1)
-    t.AssertEqual(traveler.Position(), 3)
+    Go(T).AssertEqual(traveler.Position(), 1)
 
-    traveler = stub(1)
     traveler.Move(-1)
-    t.AssertEqual(traveler.Position(), 0)
+    Go(T).AssertEqual(traveler.Position(), 0)
 
+    traveler.Move(-1)
+    Go(T).AssertEqual(traveler.Position(), 0)
 }
 
 func TestIsTop(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
+    Go(T).Assert(traveler.IsTop())
 
-    traveler := stub(0)
-    t.Assert(traveler.IsTop())
-
-    traveler = stub(2)
-    t.Refute(traveler.IsTop())
+    traveler.Move(1)
+    Go(T).Refute(traveler.IsTop())
 }
 
 func TestIsBottom(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
+    Go(T).Refute(traveler.IsBottom())
 
-    traveler := stub(3)
-    t.Assert(traveler.IsBottom())
-
-    traveler = stub(2)
-    t.Refute(traveler.IsBottom())
+    traveler.GoTo(traveler.bottom)
+    Go(T).Assert(traveler.IsBottom())
 }
 
 func TestTop(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(0)
-    t.Refute(traveler.Top())
-    t.Assert(traveler.IsTop())
+    Go(T).Refute(traveler.Top())
+    Go(T).Assert(traveler.IsTop())
 
-    traveler = stub(3)
-    t.Assert(traveler.Top())
-    t.Assert(traveler.IsTop())
+    traveler.GoTo(traveler.bottom)
+    Go(T).Assert(traveler.Top())
+    Go(T).Assert(traveler.IsTop())
 }
 
 func TestGetTop(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
+    Go(T).AssertDeepEqual(traveler.GetTop(), []byte("foo"))
 
-    traveler := stub(0)
-    t.AssertDeepEqual(traveler.GetTop(), []byte("foo"))
-
-    traveler = stub(3)
-    t.AssertDeepEqual(traveler.GetTop(), []byte("foo"))
+    traveler.GoTo(traveler.bottom)
+    Go(T).AssertDeepEqual(traveler.GetTop(), []byte("foo"))
 }
 
 func TestBottom(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(0)
-    t.Assert(traveler.Bottom())
-    t.Assert(traveler.IsBottom())
+    Go(T).Assert(traveler.Bottom())
+    Go(T).Assert(traveler.IsBottom())
 
-    traveler = stub(3)
-    t.Refute(traveler.Bottom())
-    t.Assert(traveler.IsBottom())
+    traveler.GoTo(traveler.bottom)
+    Go(T).Refute(traveler.Bottom())
+    Go(T).Assert(traveler.IsBottom())
 }
 
 func TestGetBottom(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(0)
-    t.AssertDeepEqual(traveler.GetBottom(), []byte("bin"))
+    Go(T).AssertDeepEqual(traveler.GetBottom(), []byte(""))
 
-    traveler = stub(3)
-    t.AssertDeepEqual(traveler.GetBottom(), []byte("bin"))
+    traveler.GoTo(traveler.bottom)
+    Go(T).AssertDeepEqual(traveler.GetBottom(), []byte(""))
 }
 
 func TestHasNext(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(0)
-    t.Assert(traveler.HasNext())
+    Go(T).Assert(traveler.HasNext())
 
-    traveler = stub(3)
-    t.Refute(traveler.HasNext())
+    traveler.GoTo(traveler.bottom)
+    Go(T).Refute(traveler.HasNext())
+
+    for traveler.Top(); traveler.HasNext(); traveler.Next() {
+    }
+
+    Go(T).AssertEqual(traveler.Position(), 4)
 }
 
 func TestNext(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(0)
-    t.Assert(traveler.Next())
-    t.AssertDeepEqual(traveler.Current(), []byte("bar"))
+    Go(T).Assert(traveler.Next())
+    Go(T).AssertDeepEqual(traveler.Current(), []byte("bar"))
 
-    traveler = stub(3)
-    t.Refute(traveler.Next())
-    t.AssertDeepEqual(traveler.Current(), []byte("bin"))
+    traveler.GoTo(traveler.bottom)
+    Go(T).Refute(traveler.Next())
+    Go(T).AssertDeepEqual(traveler.Current(), []byte(""))
 }
 
 func TestGetNext(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(0)
-    t.AssertDeepEqual(traveler.GetNext(), []byte("bar"))
+    Go(T).AssertDeepEqual(traveler.GetNext(), []byte("bar"))
 
-    traveler = stub(3)
-    t.AssertNil(traveler.GetNext())
+    traveler.GoTo(traveler.bottom)
+    Go(T).AssertNil(traveler.GetNext())
 }
 
 func TestHasPrev(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(3)
-    t.Assert(traveler.HasPrev())
+    Go(T).Refute(traveler.HasPrev())
 
-    traveler = stub(0)
-    t.Refute(traveler.HasPrev())
+    traveler.GoTo(traveler.bottom)
+    Go(T).Assert(traveler.HasPrev())
 }
 
 func TestPrev(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(3)
-    t.Assert(traveler.Prev())
-    t.AssertDeepEqual(traveler.Current(), []byte("bah"))
+    Go(T).Refute(traveler.Prev())
+    Go(T).AssertDeepEqual(traveler.Current(), []byte("foo"))
 
-    traveler = stub(0)
-    t.Refute(traveler.Prev())
-    t.AssertDeepEqual(traveler.Current(), []byte("foo"))
+    traveler.GoTo(traveler.bottom)
+    Go(T).Assert(traveler.Prev())
+    Go(T).AssertDeepEqual(traveler.Current(), []byte("bin"))
 }
 
 func TestGetPrev(T *testing.T) {
-    t := GoT.Go(T)
+    reload()
 
-    traveler := stub(3)
-    t.AssertDeepEqual(traveler.GetPrev(), []byte("bah"))
+    Go(T).AssertNil(traveler.GetPrev())
 
-    traveler = stub(0)
-    t.AssertNil(traveler.GetPrev())
+    traveler.GoTo(traveler.bottom)
+    Go(T).AssertDeepEqual(traveler.GetPrev(), []byte("bin"))
 }
 
 func TestLength(T *testing.T) {
-    t := GoT.Go(T)
-
-    traveler := stub(3)
-    t.AssertEqual(traveler.Length(), 4)
+    Go(T).AssertEqual(traveler.Length(), 5)
 }
 
 func TestCurrentLength(T *testing.T) {
-    t := GoT.Go(T)
-
-    traveler := stub(3)
-    t.AssertEqual(traveler.CurrentLength(), 3)
+    reload()
+    Go(T).AssertEqual(traveler.CurrentLength(), 3)
 }
 
 func TestFind(T *testing.T) {
-    t := GoT.Go(T)
-
-    traveler := stub(3)
-
+    traveler.GoTo(0)
     rx := regexp.MustCompile("^foo$")
-    t.AssertLength(traveler.Find(rx), 1)
-    t.AssertDeepEqual(traveler.Find(rx), []int{0})
+    Go(T).AssertLength(traveler.Find(rx), 1)
+    Go(T).AssertDeepEqual(traveler.Find(rx), []int{0})
 
+    traveler.GoTo(traveler.bottom)
     rx = regexp.MustCompile("^b.+$")
-    t.AssertLength(traveler.Find(rx), 3)
-    t.AssertDeepEqual(traveler.Find(rx), []int{1, 2, 3})
+    Go(T).AssertLength(traveler.Find(rx), 3)
+    Go(T).AssertDeepEqual(traveler.Find(rx), []int{1, 2, 3})
 }
 
 func TestFindString(T *testing.T) {
-    t := GoT.Go(T)
+    traveler.GoTo(0)
+    Go(T).AssertLength(traveler.FindString("^foo$"), 1)
+    Go(T).AssertDeepEqual(traveler.FindString("^foo$"), []int{0})
 
-    traveler := stub(3)
+    traveler.GoTo(traveler.bottom)
+    Go(T).AssertLength(traveler.FindString("^b.+$"), 3)
+    Go(T).AssertDeepEqual(traveler.FindString("^b.+$"), []int{1, 2, 3})
+}
 
-    t.AssertLength(traveler.FindString("^foo$"), 1)
-    t.AssertDeepEqual(traveler.FindString("^foo$"), []int{0})
+func TestForEach(T *testing.T) {
+    reload()
 
-    t.AssertLength(traveler.FindString("^b.+$"), 3)
-    t.AssertDeepEqual(traveler.FindString("^b.+$"), []int{1, 2, 3})
+    var ls [][]byte
+    traveler.ForEach(func(p int, l []byte) {
+        ls = append(ls, l)
+    })
+
+    Go(T).AssertLength(ls, 5)
+    Go(T).AssertDeepEqual(ls[len(ls)-1], []byte(""), "Last recorded should be last line of test file.")
+
+    Go(T).AssertEqual(traveler.Position(), 0, "Position should not change.")
+}
+
+func TestForRange(T *testing.T) {
+    reload()
+
+    var ls [][]byte
+    traveler.ForRange(1, 3, func(p int, l []byte) {
+        ls = append(ls, l)
+    })
+
+    Go(T).AssertLength(ls, 3)
+    Go(T).AssertDeepEqual(ls[2], []byte("bin"))
+    Go(T).AssertEqual(traveler.Position(), 0)
 }
 
 func Example() {
-    traveler, err := ReadFileTraveler("_support/test.txt")
-    if err != nil {
-        panic(err)
-    }
+    if traveler, err := ReadFileTraveler("_support/test.txt"); err == nil {
+        // Overly complex for example purposes.
 
-    for ; traveler.HasNext(); traveler.Next() {
+        if traveler.IsTop() {
+            fmt.Println("starting at the top")
+        }
+
         fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+
+        if traveler.Next() {
+            fmt.Println("moving to the next line")
+            fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+        }
+
+        if traveler.Move(1) {
+            fmt.Println("moving down a line")
+            fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+        }
+
+        if traveler.Move(-1) {
+            fmt.Println("moving back up a line")
+            fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+        }
+
+        if traveler.Bottom() {
+            fmt.Println("moving to the bottom line")
+            fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+        }
+
+        if traveler.IsBottom() {
+            fmt.Println("finishing at the bottom")
+        }
+    }
+    for traveler.Top(); traveler.HasNext(); traveler.Next() {
     }
 
     // Output:
     //
+    // starting at the top
     // 0: "foo"
+    // moving to the next line
     // 1: "bar"
+    // moving down a line
     // 2: "bah"
-    // 3: "bin"
+    // moving back up a line
+    // 1: "bar"
+    // moving to the bottom line
+    // 4: ""
+    // finishing at the bottom
 }
 
 func ExampleFileTraveler_Top() {
@@ -298,6 +341,42 @@ func ExampleFileTraveler_FindString() {
             fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
         }
     }
+
+    // Output:
+    //
+    // 1: "bar"
+    // 2: "bah"
+    // 3: "bin"
+}
+
+func ExampleFileTraveler_ForEach() {
+    traveler, err := ReadFileTraveler("_support/test.txt")
+    if err != nil {
+        panic(err)
+    }
+
+    traveler.ForEach(func(pos int, line []byte) {
+        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+    })
+
+    // Output:
+    //
+    // 0: "foo"
+    // 1: "bar"
+    // 2: "bah"
+    // 3: "bin"
+    // 4: ""
+}
+
+func ExampleFileTraveler_ForRange() {
+    traveler, err := ReadFileTraveler("_support/test.txt")
+    if err != nil {
+        panic(err)
+    }
+
+    traveler.ForRange(1, 3, func(pos int, line []byte) {
+        fmt.Printf("%d: %q\n", traveler.Position(), traveler.Current())
+    })
 
     // Output:
     //

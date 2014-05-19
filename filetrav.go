@@ -26,7 +26,7 @@ type FileTraveler struct {
 func NewFileTraveler(data []byte) (traveler FileTraveler, err error) {
     traveler.lines = bytes.Split(data, []byte("\n"))
     traveler.current = traveler.lines[0]
-    traveler.bottom = (traveler.Length() - 1)
+    traveler.bottom = len(traveler.lines) - 1
     return
 }
 
@@ -52,8 +52,8 @@ func (traveler *FileTraveler) GoTo(n int) (moved bool) {
         return false
     }
 
-    traveler.position = n
     traveler.current = traveler.lines[n]
+    traveler.position = n
     return true
 }
 
@@ -103,7 +103,7 @@ func (traveler *FileTraveler) GetBottom() (bottom []byte) {
 
 // HasNext checks to see if there is a line after the current line.
 func (traveler *FileTraveler) HasNext() (hasNext bool) {
-    return traveler.position+1 < traveler.Length()
+    return traveler.position < traveler.bottom
 }
 
 // Next makes the next line in file the current line.
@@ -152,11 +152,11 @@ func (traveler *FileTraveler) CurrentLength() (length int) {
 // Find takes a compiled regexp and starting at the top of the file
 // returns the line number of all lines that match.
 func (traveler *FileTraveler) Find(rx *regexp.Regexp) (matches []int) {
-    for i := 0; i < traveler.Length(); i++ {
-        if rx.Match(traveler.lines[i]) {
-            matches = append(matches, i)
+    traveler.ForEach(func(pos int, line []byte) {
+        if rx.Match(line) {
+            matches = append(matches, pos)
         }
-    }
+    })
     return
 }
 
@@ -165,4 +165,41 @@ func (traveler *FileTraveler) Find(rx *regexp.Regexp) (matches []int) {
 func (traveler *FileTraveler) FindString(pattern string) (matches []int) {
     rx := regexp.MustCompile(pattern)
     return traveler.Find(rx)
+}
+
+// ForEach iterates over the file from top to bottom, calling the passed method
+// on each line. It leaves the current line unchanged when complete.
+func (traveler *FileTraveler) ForEach(act func(position int, line []byte)) {
+    defer func(t *FileTraveler, c int) {
+        t.GoTo(c)
+    }(traveler, traveler.Position())
+
+    traveler.Top()
+    act(traveler.Position(), traveler.Current())
+
+    for traveler.Next() {
+        act(traveler.Position(), traveler.Current())
+    }
+
+    return
+}
+
+// ForRange iterates over the file from 'start' to 'end', calling the passed method
+// on each line. It leaves the current line unchanged when complete.
+func (traveler *FileTraveler) ForRange(start int, end int, act func(position int, line []byte)) {
+    defer func(t *FileTraveler, c int) {
+        t.GoTo(c)
+    }(traveler, traveler.Position())
+
+    traveler.GoTo(start)
+    act(traveler.Position(), traveler.Current())
+
+    for traveler.Next() {
+        act(traveler.Position(), traveler.Current())
+        if traveler.Position() == end {
+            return
+        }
+    }
+
+    return
 }
