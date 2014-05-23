@@ -219,6 +219,15 @@ on each line. It leaves the current line unchanged when complete.
 	// 3: "bin"
 
 
+#### Get
+
+```go
+func (traveler *FileTraveler) Get(n int) (current []byte)
+```
+Get line 'n' in file and return it.
+
+
+
 #### GetBottom
 
 ```go

@@ -57,6 +57,14 @@ func (traveler *FileTraveler) GoTo(n int) (moved bool) {
     return true
 }
 
+// Get line 'n' in file and return it.
+func (traveler *FileTraveler) Get(n int) (current []byte) {
+    if traveler.GoTo(n) {
+        return traveler.Current()
+    }
+    return nil
+}
+
 // Move +/- 'n' lines in file.
 func (traveler *FileTraveler) Move(n int) (moved bool) {
     return traveler.GoTo(traveler.position + n)

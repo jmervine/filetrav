@@ -92,6 +92,12 @@ func TestTop(T *testing.T) {
     Go(T).Assert(traveler.IsTop())
 }
 
+func TestGet(T *testing.T) {
+    reload()
+    Go(T).AssertDeepEqual(traveler.Get(1), []byte("bar"))
+    Go(T).AssertDeepEqual(traveler.Get(3), []byte("bin"))
+}
+
 func TestGetTop(T *testing.T) {
     reload()
     Go(T).AssertDeepEqual(traveler.GetTop(), []byte("foo"))
