@@ -9,6 +9,6 @@ fmt:
 
 readme: test
 	# generating readme
-	godoc -ex -v -templates "$(PWD)/_support" . | tee README.md
+	godoc -ex -v -templates "$(PWD)/_support" . > README.md
 
 .PHONY: travis test fmt readme

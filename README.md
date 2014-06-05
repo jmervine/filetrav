@@ -86,18 +86,14 @@ func NewFileTraveler(data []byte) (traveler FileTraveler, err error)
 > NewFileTraveler creates a new FileTraveler from a []byte, like the one that
 > would be read in from ioutil.ReadFile.
 
-```go
 
-```
 #### ReadFileTraveler
 ```go
 func ReadFileTraveler(file string) (traveler FileTraveler, err error)
 ```
 > ReadFileTraveler creates a new FileTraveler from a path to a file on disk.
 
-```go
 
-```
 #### Bottom
 ```go
 func (traveler *FileTraveler) Bottom() (moved bool)
