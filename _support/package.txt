@@ -11,11 +11,13 @@
 
 ```go
 import "github.com/jmervine/filetrav"
-```{{else}}
-{{end}}
-
-{{comment_text .Doc "" "    "}}
-{{example_text $ "" "##### "}}{{/*
+```
+{{else}}
+{{end}}{{comment_text .Doc "" "    "}}
+{{if example_text $ "" ""}}```go
+{{example_text $ "" "    // "}}
+```
+{{end}}{{/*
 
 ---------------------------------------
 
@@ -26,7 +28,7 @@ import "github.com/jmervine/filetrav"
 {{node $ .Decl}}
 ```
 
-{{comment_text .Doc "" "    "}}
+{{comment_text .Doc "> " ""}}
 {{end}}{{end}}{{/*
 
 ---------------------------------------
@@ -38,7 +40,7 @@ import "github.com/jmervine/filetrav"
 {{node $ .Decl}}
 ```
 
-{{comment_text .Doc "" "    "}}
+{{comment_text .Doc "> " ""}}
 {{end}}{{end}}{{/*
 
 ---------------------------------------
@@ -47,37 +49,36 @@ import "github.com/jmervine/filetrav"
 ### Types
 
 {{range .}}#### {{.Name}}
-
 ```go
 {{$tname := .Name}}{{node $ .Decl}}
 ```
 {{range .Consts}}```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "" "    "}}
+{{comment_text .Doc "> " ""}}
 {{end}}
 {{range .Vars}}{{node $ .Decl}}
-{{comment_text .Doc "" "    "}}
+{{comment_text .Doc "> " ""}}```go
+{{example_text $ .Name "    // "}}
+```
 {{end}}
-{{example_text $ .Name "##### "}}
-
-### Functions
 {{range .Funcs}}#### {{.Name}}
-
 ```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "" "    "}}
-{{example_text $ .Name  "##### "}}
+{{comment_text .Doc "> " ""}}
+```go
+{{example_text $ .Name "    // "}}
+```
 {{end}}{{range .Methods}}{{/* methods */}}#### {{.Name}}
-
 ```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "" "    "}}
+{{comment_text .Doc "> " ""}}
 {{$name := printf "%s_%s" $tname .Name}}
-{{if example_text $ $name ""}}
-{{example_text $ $name "##### "}}
+{{if example_text $ $name ""}}```go
+{{example_text $ $name "    // "}}
+```
 {{end}}
 {{end}}{{end}}{{end}}{{/*
 
@@ -85,12 +86,12 @@ import "github.com/jmervine/filetrav"
 
 */}}{{with .Funcs}}
 {{range .}}#### {{.Name}}
-
 ```go
 {{node $ .Decl}}
 ```
-{{comment_text .Doc "" "    "}}
-{{example_text $ .Name "##### "}}
+{{comment_text .Doc "> " ""}}```go
+{{example_text $ .Name "    // "}}
+```
 {{end}}{{end}}{{/*
 
 ---------------------------------------
@@ -99,15 +100,16 @@ import "github.com/jmervine/filetrav"
 {{range $marker, $content := .}}
 {{noteTitle $marker}}s
 
-{{range $content}}{{comment_text . "" "    "}}
+{{range $content}}{{comment_text . "> " ""}}
 {{end}}{{end}}{{end}}{{end}}{{/*
 
 ---------------------------------------
 
-*/}}{{with .Dirs}}
+{{with .Dirs}}
 ## Subdirectories
 {{if $.DirFlat}}{{range .List}}{{if .HasPkg}}
 	{{.Path}}{{end}}{{end}}
 {{else}}{{range .List}}
 	{{repeat `. ` .Depth}}{{.Name}}{{end}}
 {{end}}{{end}}
+*/}}
